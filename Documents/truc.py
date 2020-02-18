@@ -1,4 +1,14 @@
+def aff_newliste (req,field):
+	liste_produit = []
+	for value in req['products']:
+		for key, value_products in value.items():
+			if key.find(field) == 0:
+				for categories in value_products:
+					categories = categories.strip()
+					if categories not in liste_produit and len(categories)>=3:
+						liste_produit.append(categories)
 
+	return liste_produit
 
 
 											for cat_find in nbr_entre_find:
@@ -113,3 +123,17 @@
 					#choix = 1
 
 							#self.liste_import_cat = ['Eau','Boisson','Plats préparés','Petit-déjeuners','Produit à tartiner']
+
+							if self.ask_util == 0:
+			nw_bdd = req_produit.crea_bdd()
+			liste_stores = req_produit.req_store()
+
+			stores = aff_newliste(liste_stores,'stores')
+
+			for x,cat_import in enumerate(self.list_import_categorie):
+				req_result = req_produit.req_produit(cat_import)
+				liste_produit = req_produit.crea_dictionnary(req_result,cat_import,x,stores)
+				liste_dict_produit = liste_dict_produit + liste_produit
+				
+			aff_listeproduit = req_produit.dbl_listing(liste_dict_produit)		
+			return liste_dict_produit

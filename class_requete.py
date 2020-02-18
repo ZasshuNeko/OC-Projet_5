@@ -13,7 +13,7 @@ import mysql.connector
 from mysql.connector import errorcode
 from mysql.connector.errors import Error
 import requests
-from bdd_mysql import bdd_mysql 
+
 
 class request:
 
@@ -53,7 +53,7 @@ class request:
 		dictionnary_produit = {}
 		dict_produit = {}
 		liste_dict_produit = []
-		
+		x = x + 1
 		for value in req['products']:
 			dictionnary_produit.clear()
 			liste_field = crea_list_field(value)
@@ -74,6 +74,7 @@ class request:
 
 			if dictionnary_produit:
 				liste_stores = []
+				
 				dictionnary_produit["categories"] = [x]
 
 				for key in value.keys():
@@ -95,6 +96,7 @@ class request:
 										liste_stores.append(stores.index(value_stores))
 				list_nodbl = []
 				for data_stores in liste_stores:
+					data_stores = data_stores + 1
 					if not data_stores in list_nodbl:
 						list_nodbl.append(data_stores)
 				dictionnary_produit["stores"] = list_nodbl
@@ -121,7 +123,7 @@ class request:
 						val_manquante = [value for value in liste_cat_search if value not in liste_cat_find]
 						nbr['categories']=nbr.get('categories') + val_manquante
 
-		#print(nw_liste_produit)
+		return nw_liste_produit
 
 	def crea_bdd(self):
 		host = input("Indiquer l'adresse de la base de donnée (par défaut 'Localhost') : ")

@@ -9,43 +9,37 @@ import json
 import requests
 import copy
 from class_requete import *
+from bdd_mysql import bdd_mysql 
 import configparser
+import platform
 
 class affichage:
 	def __init__ (self):
 		choix = 0
-
+		clean()
 		self.config = configparser.ConfigParser()
 		self.config.read('config.ini','utf8')
 		self.list_import_categorie = self.config.get('CONFIG','categories').split(',')
-		list_ask_intro = self.config.get('INTERACTION','choix_begin').split(',')
-		list_hello = self.config.get('INTERACTION','lancement').split(',')
-		hello_word = list_hello[0] + '\n' + list_hello[1]
+		self.list_ask_intro = self.config.get('INTERACTION','choix_begin').split(',')
+		self.list_hello = self.config.get('INTERACTION','lancement').split(',')
+		
+		#self.ask_util = aff_intro(self.list_hello,list_ask_intro)
+
+	def aff_intro(self):
+		hello_word = self.list_hello[0] + '\n' + self.list_hello[1]
 		print(hello_word)
-		for text_intro in list_ask_intro:
+		for text_intro in self.list_ask_intro:
 			print(text_intro)
 
-		self.ask_util = error_check(list_ask_intro)
-			
+		ask_util = error_check(self.list_ask_intro)
+		clean()
+		return ask_util
 
 	def aff_utilisation(self):
 		liste_dict_produit = []
 		req_produit = request()
-		if self.ask_util == 0:
-			nw_bdd = req_produit.crea_bdd()
-			liste_stores = req_produit.req_store()
 
-			stores = aff_newliste(liste_stores,'stores')
-
-			for x,cat_import in enumerate(self.list_import_categorie):
-				req_result = req_produit.req_produit(cat_import)
-				liste_produit = req_produit.crea_dictionnary(req_result,cat_import,x,stores)
-				liste_dict_produit = liste_dict_produit + liste_produit
-				
-			aff_listeproduit = req_produit.dbl_listing(liste_dict_produit)		
-			return liste_dict_produit
-
-		elif self.ask_util == 1:
+		if self.ask_util == 1:
 			req_categorie = req_produit.req_categorie()
 			print(req_categorie)
 			
@@ -60,18 +54,18 @@ class affichage:
 		self.config.write(open('config.ini','w'))
 		writte_succed = "Configuration réussie"
 		return writte_succed
-			
-def aff_newliste (req,field):
-	liste_produit = []
-	for value in req['products']:
-		for key, value_products in value.items():
-			if key.find(field) == 0:
-				for categories in value_products:
-					categories = categories.strip()
-					if categories not in liste_produit and len(categories)>=3:
-						liste_produit.append(categories)
 
-	return liste_produit
+	def aff_msg(self,list_categories,titre):
+		ask_all = []
+		print(titre)
+		for aff_result in list_categories:
+			print(aff_result)
+		ask_util = error_check(list_categories)
+		ask_value = list_categories[ask_util]
+		ask_all.append(ask_util)
+		ask_all.append(ask_value)
+		clean()
+		return ask_all
 
 
 
@@ -85,6 +79,14 @@ def error_check(liste):
 		except ValueError:
 			print("La valeur saisie est invalide (ce n'est peut être pas un chiffre ou bien ce n'est pas un choix possible)")
 	return ask_util
+
+def clean():
+	if platform.system() == "Windows":
+		os.system("cls")
+	elif platform.system() == "Linux":
+		os.system("clear")
+
+
 
 
 
