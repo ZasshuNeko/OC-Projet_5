@@ -22,15 +22,13 @@ class affichage:
 		self.list_import_categorie = self.config.get('CONFIG','categories').split(',')
 		self.list_ask_intro = self.config.get('INTERACTION','choix_begin').split(',')
 		self.list_hello = self.config.get('INTERACTION','lancement').split(',')
-		
-		#self.ask_util = aff_intro(self.list_hello,list_ask_intro)
 
 	def aff_intro(self):
+		clean()
 		hello_word = self.list_hello[0] + '\n' + self.list_hello[1]
 		print(hello_word)
 		for text_intro in self.list_ask_intro:
 			print(text_intro)
-
 		ask_util = error_check(self.list_ask_intro)
 		clean()
 		return ask_util
@@ -38,7 +36,6 @@ class affichage:
 	def aff_utilisation(self):
 		liste_dict_produit = []
 		req_produit = request()
-
 		if self.ask_util == 1:
 			req_categorie = req_produit.req_categorie()
 			print(req_categorie)
@@ -50,7 +47,6 @@ class affichage:
 		for text_config in list_config_bdd:
 			param_config = input('Indiquer' + text_config + ': ')
 			self.config.set('SAVE',text_config,param_config)
-
 		self.config.write(open('config.ini','w'))
 		writte_succed = "Configuration réussie"
 		return writte_succed
@@ -58,8 +54,8 @@ class affichage:
 	def aff_msg(self,list_categories,titre):
 		ask_all = []
 		print(titre)
-		for aff_result in list_categories:
-			print(aff_result)
+		for key,aff_result in list_categories.items():
+			print(key, " - ",aff_result)
 		ask_util = error_check(list_categories)
 		ask_value = list_categories[ask_util]
 		ask_all.append(ask_util)
@@ -67,13 +63,18 @@ class affichage:
 		clean()
 		return ask_all
 
+	def aff_end(self):
+		print("Merci d'avoir utiliser mon programme, à bientôt sur un prochain projet OpenClassrooms")
 
-
+	def aff_warning(self,warning):
+		clean()
+		print(warning)
+		
 def error_check(liste):
 	while True:
 		try:
 			ask_util = int(input("Que voulez-vous faire ? "))
-			if ask_util > len(liste):
+			if ask_util > len(liste): #or ask_util == 0:
 				raise ValueError("Vous n'avez que ",len(liste)," choix")
 			break
 		except ValueError:

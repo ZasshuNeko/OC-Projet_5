@@ -1,3 +1,9 @@
+		if len(adresse) == 0 or len(utilisateur) == 0 or len(password) == 0 or len(name_databases) == 0:
+			adresse = self.config.get('DEFAULT','host')
+			utilisateur = self.config.get('DEFAULT','user')
+			password = self.config.get('DEFAULT','password')
+			name_databases = self.config.get('DEFAULT','database_name')
+
 def aff_newliste (req,field):
 	liste_produit = []
 	for value in req['products']:
@@ -9,6 +15,9 @@ def aff_newliste (req,field):
 						liste_produit.append(categories)
 
 	return liste_produit
+
+
+				#inclure_list = str(answer[0]) + " - " + answer[1]
 
 
 											for cat_find in nbr_entre_find:
@@ -137,3 +146,52 @@ def aff_newliste (req,field):
 				
 			aff_listeproduit = req_produit.dbl_listing(liste_dict_produit)		
 			return liste_dict_produit
+
+
+					#req_key_product = req_key_product + copy_key + ","
+					#req_value_product = req_value_product + value_product + ','
+								#req_key_product = req_key_product[0:len(req_key_product)-1]
+			#req_value_product = req_value_product[0:len(req_value_product)-1]
+
+							"""if insert_key.find('product') != -1:
+					copy_key = 'nom'
+					value_product = value_product.replace("'","\\'")
+					value_product = "\'" + value_product + "\'"
+
+				if value_product is not None :
+					if type(value_product) is not str :
+						value_product = str(value_product)
+					if insert_key.find('unit') != -1:
+						value_product = "\'" + value_product + "\'"
+					if insert_key.find('grade') != -1:
+						if len(value_product) > 2:
+							value_product = "'" + value_product[2] + "'"
+						elif len(value_product) == 1:
+							value_product = "'" + value_product + "'"
+						copy_key = 'nutri_score'"""
+										#insert_key = key_product.replace('-','_')
+
+										"+str(categorie)+","+str(last_id)+"
+										"+str(vendeur)+","+str(last_id)+"
+													#seq_sql = "INSERT INTO Categories (nom) VALUES ('" + categorie + "')"
+
+
+													field = ""
+	for value in liste_nutriments:
+		if value.find('unit') != -1:
+			value = value.replace("-","_")
+			nw_field = value + " CHAR(5),"
+		else:
+			value = value.replace("-","_")
+			nw_field = value + " DECIMAL(7,2) UNSIGNED,"
+
+		field = field + nw_field
+
+	sql_sequence = "CREATE TABLE IF NOT EXISTS Produits (id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT, nom TEXT NOT NULL," + field + " nova_score TINYINT, nutri_score CHAR(5), lien TEXT, PRIMARY KEY(id))ENGINE = InnoDB DEFAULT CHARSET=utf8;"#, CONSTRAINT fk_categorie_id FOREIGN KEY (categories_id) REFERENCES Categories(id), CONSTRAINT fk_vendeurs_id FOREIGN KEY (vendeurs_id) REFERENCES Vendeurs(id)
+	cursor.execute("CREATE TABLE IF NOT EXISTS Categories (id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT, nom TEXT NOT NULL, PRIMARY KEY (id))ENGINE=InnoDB DEFAULT CHARSET=utf8;")
+	cursor.execute("CREATE TABLE IF NOT EXISTS Vendeurs (id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT, nom TEXT NOT NULL, PRIMARY KEY (id))ENGINE=InnoDB DEFAULT CHARSET=utf8;")
+	cursor.execute(sql_sequence)
+	cursor.execute("CREATE TABLE IF NOT EXISTS Substitut_save (id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT, produit_id SMALLINT UNSIGNED NOT NULL,date_time DATETIME NOT NULL, PRIMARY KEY (id),CONSTRAINT fk_produit_id FOREIGN KEY (produit_id) REFERENCES Produits(id))ENGINE=InnoDB DEFAULT CHARSET=utf8;")
+	cursor.execute("CREATE TABLE IF NOT EXISTS Tbl_jointure_categories_produits (id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT, categories_id SMALLINT UNSIGNED NOT NULL,produits_id SMALLINT UNSIGNED NOT NULL, PRIMARY KEY (id),CONSTRAINT fk_categories_id FOREIGN KEY (categories_id) REFERENCES Categories(id), CONSTRAINT fk_produits_categories_id FOREIGN KEY (produits_id) REFERENCES Produits(id))ENGINE=InnoDB DEFAULT CHARSET=utf8;")
+	cursor.execute("CREATE TABLE IF NOT EXISTS Tbl_jointure_vendeurs_produits (id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT, vendeurs_id SMALLINT UNSIGNED NOT NULL,produits_id SMALLINT UNSIGNED NOT NULL, PRIMARY KEY (id),CONSTRAINT fk_vendeurs_id FOREIGN KEY (vendeurs_id) REFERENCES Vendeurs(id),CONSTRAINT fk_produits_vendeurs_id FOREIGN KEY (produits_id) REFERENCES Produits(id))ENGINE=InnoDB DEFAULT CHARSET=utf8;")
+	

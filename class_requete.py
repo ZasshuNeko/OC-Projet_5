@@ -66,11 +66,13 @@ class request:
 						
 						for value_nutriment in value['nutriments']:
 							for nutriments_empty in list(self.liste_nutriments):
-								dictionnary_produit[nutriments_empty] = value['nutriments'].get(nutriments_empty)
+								insert_key = nutriments_empty.replace('-','_')
+								dictionnary_produit[insert_key] = value['nutriments'].get(nutriments_empty)
 					else:
 						if empty_var.find('product') == 0:
 							empty_var = 'product_name'
-						dictionnary_produit[empty_var] = value.get(empty_var)	
+							key_var = 'nom'
+							dictionnary_produit[key_var] = value.get(empty_var)	
 
 			if dictionnary_produit:
 				liste_stores = []
