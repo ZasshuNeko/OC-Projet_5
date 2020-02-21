@@ -195,3 +195,18 @@ def aff_newliste (req,field):
 	cursor.execute("CREATE TABLE IF NOT EXISTS Tbl_jointure_categories_produits (id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT, categories_id SMALLINT UNSIGNED NOT NULL,produits_id SMALLINT UNSIGNED NOT NULL, PRIMARY KEY (id),CONSTRAINT fk_categories_id FOREIGN KEY (categories_id) REFERENCES Categories(id), CONSTRAINT fk_produits_categories_id FOREIGN KEY (produits_id) REFERENCES Produits(id))ENGINE=InnoDB DEFAULT CHARSET=utf8;")
 	cursor.execute("CREATE TABLE IF NOT EXISTS Tbl_jointure_vendeurs_produits (id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT, vendeurs_id SMALLINT UNSIGNED NOT NULL,produits_id SMALLINT UNSIGNED NOT NULL, PRIMARY KEY (id),CONSTRAINT fk_vendeurs_id FOREIGN KEY (vendeurs_id) REFERENCES Vendeurs(id),CONSTRAINT fk_produits_vendeurs_id FOREIGN KEY (produits_id) REFERENCES Produits(id))ENGINE=InnoDB DEFAULT CHARSET=utf8;")
 	
+
+				if produit_select_nutri_code is not None and self.dict_nutri_score.get(nutri_score[2]) is not None :
+				if self.dict_nutri_score.get(nutri_score[2]) < produit_select_nutri_code:
+					result_substitut = copy.deepcopy(nutri_score)
+
+		if len(result_substitut) == 0:
+			for nutri_score in answer_bdd:
+				if produit_select_nutri_code is not None and self.dict_nutri_score.get(nutri_score[2]) is not None :
+					if nutri_score[2] == produit_select_nutri_code:
+						if nutri_score[3] < produit_select[3] or nutri_score[4] < produit_select[4] or nutri_score[5] < produit_select[5]:
+							result_substitut = copy.deepcopy(nutri_score)
+				else:
+					print(nutri_score[3])
+					if float(nutri_score[3]) < float(produit_select[3]) or float(nutri_score[4]) < produit_select[4] or nutri_score[5] < produit_select[5]:
+							result_substitut = copy.deepcopy(nutri_score)

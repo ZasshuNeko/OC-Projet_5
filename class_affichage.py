@@ -24,13 +24,13 @@ class affichage:
 		self.list_hello = self.config.get('INTERACTION','lancement').split(',')
 
 	def aff_intro(self):
-		clean()
+		#clean()
 		hello_word = self.list_hello[0] + '\n' + self.list_hello[1]
 		print(hello_word)
 		for text_intro in self.list_ask_intro:
 			print(text_intro)
 		ask_util = error_check(self.list_ask_intro)
-		clean()
+		#clean()
 		return ask_util
 
 	def aff_utilisation(self):
@@ -74,7 +74,7 @@ def error_check(liste):
 	while True:
 		try:
 			ask_util = int(input("Que voulez-vous faire ? "))
-			if ask_util > len(liste): #or ask_util == 0:
+			if ask_util > len(liste)-1: #or ask_util == 0:
 				raise ValueError("Vous n'avez que ",len(liste)," choix")
 			break
 		except ValueError:

@@ -10,6 +10,7 @@ import copy
 import re
 import pandas as pd
 import mysql.connector
+import configparser
 from mysql.connector import errorcode
 from mysql.connector.errors import Error
 import requests
@@ -18,9 +19,12 @@ import requests
 class request:
 
 	def __init__(self):
+		self.config = configparser.ConfigParser()
+		self.config.read('config.ini','utf8')
 		self.adress_api = "https://fr.openfoodfacts.org/cgi/search.pl?"
 		self.final_api = "&action=process&json=1"
-		self.liste_nutriments = ["energy_100g","energy-kcal_unit","salt_100g","salt_unit","sodium_100g","sodium_unit","proteins_100g","proteins_unit","carbohydrates_100g","carbohydrates_unit","fat_100g","fat_unit","sugars_100g","sugars_unit","saturated-fat_100g","saturated-fat_unit"]
+		self.liste_nutriments = self.config.get('CONFIG','nutriments').split(',')
+		#self.liste_nutriments = ["energy_100g","energy-kcal_unit","salt_100g","salt_unit","sodium_100g","sodium_unit","proteins_100g","proteins_unit","carbohydrates_100g","carbohydrates_unit","fat_100g","fat_unit","sugars_100g","sugars_unit","saturated-fat_100g","saturated-fat_unit"]
 
 	def req_categorie(self):
 		tag = "search_tag=categories"
@@ -37,6 +41,7 @@ class request:
 		req_api = self.adress_api + tag_choice + self.final_api
 		r = requests.get(req_api)
 		result = json.loads(r.content)
+		#print(result)
 		return result
 
 	def req_store(self):
@@ -67,12 +72,18 @@ class request:
 						for value_nutriment in value['nutriments']:
 							for nutriments_empty in list(self.liste_nutriments):
 								insert_key = nutriments_empty.replace('-','_')
+								if insert_key.find('nutrition_score_fr') != -1:
+									insert_key = 'nutri_score'
 								dictionnary_produit[insert_key] = value['nutriments'].get(nutriments_empty)
-					else:
-						if empty_var.find('product') == 0:
-							empty_var = 'product_name'
-							key_var = 'nom'
-							dictionnary_produit[key_var] = value.get(empty_var)	
+					elif empty_var.find('product') == 0:
+						empty_var = 'product_name'
+						key_var = 'nom'
+						dictionnary_produit[key_var] = value.get(empty_var)
+					elif empty_var.find('url') != -1:
+						empty_var = 'url'
+						key_var = 'lien'
+						dictionnary_produit[key_var] = value.get(empty_var)
+
 
 			if dictionnary_produit:
 				liste_stores = []
@@ -139,8 +150,8 @@ class request:
 		print(msg_bdd)
 
 def crea_list_field(value):
-	liste_field = ["nutriments"] #"product_name_fr",
-	liste_field_test = ["nutrition_grade","product_name"]
+	liste_field = ["nutriments","url"] #"product_name_fr",
+	liste_field_test = ["grade","product_name"]
 	for field in liste_field_test:
 		for key in value.keys():
 			if field in key and value.get(key):

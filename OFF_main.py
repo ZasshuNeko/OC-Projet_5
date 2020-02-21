@@ -54,7 +54,8 @@ def main():
 		elif answer_user == 1:
 			req_dbt = bdd_ini.req_sql(affichage_init,end_prog)
 			end_prog = req_dbt
-			#affichage_init.aff_msg(req_dbt)
+		elif answer_user == 2:
+			req_take_substitut = bdd_ini.sql_take_substitut(affichage_init,end_prog)
 		elif answer_user == 3:
 			end_prog = False
 
