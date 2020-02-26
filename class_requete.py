@@ -18,156 +18,174 @@ import requests
 
 class request:
 
-	def __init__(self):
-		self.config = configparser.ConfigParser()
-		self.config.read('config.ini','utf8')
-		self.adress_api = "https://fr.openfoodfacts.org/cgi/search.pl?"
-		self.final_api = "&action=process&json=1"
-		self.liste_nutriments = self.config.get('CONFIG','nutriments').split(',')
-		#self.liste_nutriments = ["energy_100g","energy-kcal_unit","salt_100g","salt_unit","sodium_100g","sodium_unit","proteins_100g","proteins_unit","carbohydrates_100g","carbohydrates_unit","fat_100g","fat_unit","sugars_100g","sugars_unit","saturated-fat_100g","saturated-fat_unit"]
+    def __init__(self):
+        self.config = configparser.ConfigParser()
+        self.config.read('config.ini', 'utf8')
+        self.adress_api = "https://fr.openfoodfacts.org/cgi/search.pl?"
+        self.final_api = "&action=process&json=1"
+        self.liste_nutriments = self.config.get(
+                                                'CONFIG',
+                                                'nutriments').split(',')
 
-	def req_categorie(self):
-		tag = "search_tag=categories"
-		req_api = self.adress_api + tag + self.final_api
-		r = requests.get(req_api)
-		result = json.loads(r.content)
+    """ Ces modules permettent de créer une réponse jsons des
+    différentes demandes produits par l'API
 
-		return result
+    Permet de ramener les produits répondant aux catégories
+    indiqués en paramètre "select_choice" """
 
-	def req_produit(self,select_choice):
-		tag = "search_terms="
-		tag_bis = "&search_tag=categories"
-		tag_choice = tag + '"' + select_choice + '"' + tag_bis
-		req_api = self.adress_api + tag_choice + self.final_api
-		r = requests.get(req_api)
-		result = json.loads(r.content)
-		#print(result)
-		return result
+    def req_produit(self, select_choice):
+        tag = "search_terms="
+        tag_bis = "&search_tag=categories"
+        tag_choice = tag + '"' + select_choice + '"' + tag_bis
+        req_api = self.adress_api + tag_choice + self.final_api
+        r = requests.get(req_api)
+        result = json.loads(r.content)
+        return result
 
-	def req_store(self):
-		tag = "search_tag=stores"
-		req_api = self.adress_api + tag + self.final_api
-		r = requests.get(req_api)
-		result = json.loads(r.content)
+    # Permet de ramener les différents vendeurs de Open Food Facts
 
-		list_store = crea_newliste(result,'stores')
-		return list_store
-		#return result
+    def req_store(self):
 
-	def crea_dictionnary(self,req,cat_import,x,stores):
-		dictionnary_produit = {}
-		dict_produit = {}
-		liste_dict_produit = []
-		x = x + 1
-		for value in req['products']:
-			dictionnary_produit.clear()
-			liste_field = crea_list_field(value)
-			for empty_var in list(liste_field):
-				if not value.get(empty_var):
-					dictionnary_produit.clear()
-					break
-				else : 
-					if empty_var == 'nutriments':
-						
-						for value_nutriment in value['nutriments']:
-							for nutriments_empty in list(self.liste_nutriments):
-								insert_key = nutriments_empty.replace('-','_')
-								if insert_key.find('nutrition_score_fr') != -1:
-									insert_key = 'nutri_score'
-								dictionnary_produit[insert_key] = value['nutriments'].get(nutriments_empty)
-					elif empty_var.find('product') == 0:
-						empty_var = 'product_name'
-						key_var = 'nom'
-						dictionnary_produit[key_var] = value.get(empty_var)
-					elif empty_var.find('url') != -1:
-						empty_var = 'url'
-						key_var = 'lien'
-						dictionnary_produit[key_var] = value.get(empty_var)
+        tag = "search_tag=stores"
+        req_api = self.adress_api + tag + self.final_api
+        r = requests.get(req_api)
+        result = json.loads(r.content)
+        list_store = crea_newliste(result, 'stores')
+        return list_store
+
+    """ Ce module créé le dictionnaire ou sera contenu
+    les produits de chaque catégories"""
+
+    def crea_dictionnary(self, req, cat_import, x, stores):
+        dictionnary_produit = {}
+        dict_produit = {}
+        liste_dict_produit = []
+        x = x + 1
+        for value in req['products']:
+            dictionnary_produit.clear()
+            liste_field = crea_list_field(value)
+            for empty_var in list(liste_field):
+                if not value.get(empty_var):
+                    dictionnary_produit.clear()
+                    break
+                else:
+                    if empty_var == 'nutriments':
+                        for value_nutriment in value['nutriments']:
+                            for nutriments_empty in list(
+                                                         self.liste_nutriments
+                                                         ):
+                                insert_key = nutriments_empty.replace('-', '_')
+                                if insert_key.find('nutrition_score_fr') != -1:
+                                    insert_key = 'nutri_score'
+                                dictionnary_produit[insert_key] = value['nutriments'].get(nutriments_empty)
+                    elif empty_var.find('product') == 0:
+                        empty_var = 'product_name'
+                        key_var = 'nom'
+                        dictionnary_produit[key_var] = value.get(empty_var)
+                    elif empty_var.find('url') != -1:
+                        empty_var = 'url'
+                        key_var = 'lien'
+                        dictionnary_produit[key_var] = value.get(empty_var)
+                if dictionnary_produit:
+                    liste_stores = []
+                    dictionnary_produit["categories"] = [x]
+                    for key in value.keys():
+                        if key.find('stores') == 0:
+                            if len(value.get(key)) != 0:
+                                if type(value.get(key)) is not list:
+                                    if len(value.get(key)) != 0:
+                                        value_key = value.get(key).split(',')
+                            for store_select in stores:
+                                if store_select in value.get(key):
+                                    if len(store_select) >= 3:
+                                        liste_stores.append(stores
+                                                            .index(store_select))
+                            if len(liste_stores) == 0:
+                                for value_stores in value.get(key):
+                                    if len(value_stores) >= 3:
+                                        stores.append(value_stores)
+                                        liste_stores.append(stores
+                                                            .index(value_stores))
+                list_nodbl = []
+                for data_stores in liste_stores:
+                    data_stores = data_stores + 1
+                    if data_stores not in list_nodbl:
+                        list_nodbl.append(data_stores)
+                dictionnary_produit["stores"] = list_nodbl
+                dict_insert = copy.deepcopy(dictionnary_produit)
+                liste_dict_produit.append(dict_insert)
+        return liste_dict_produit
+
+    """ Permet de retirer les doublons des
+    produits et de fusionner les catégories"""
+
+    def dbl_listing(self, liste_produit):
+        dict_item_keep = {}
+        dict_item_del = {}
+        list_item_keep = []
+        list_item_del = []
+        fingerprints = set()
+        for index, x in enumerate(liste_produit):
+            fingerprint = x.get('nom')
+            if fingerprint is not None:
+                if fingerprint not in fingerprints:
+                    yield x
+                    fingerprints.add(fingerprint)
+                    dict_item_keep['nom'] = x.get('nom')
+                    dict_item_keep['cat'] = x.get('categories')
+                    dict_item_keep['index'] = index
+                    list_item_keep.append(dict_item_keep)
+
+                else:
+                    dict_item_del['nom'] = x.get('nom')
+                    dict_item_del['cat'] = x.get('categories')
+                    dict_item_del['index'] = index
+                    list_item_del.append(dict_item_del)
+
+        list_produit_fusion = dbl_fusionCat(list_item_del, list_item_keep)
+        nw_list = dbl_newlist(list_produit_fusion, list_item_del)
+
+        return nw_list
 
 
-			if dictionnary_produit:
-				liste_stores = []
-				
-				dictionnary_produit["categories"] = [x]
+def dbl_newlist(list_base, list_item_del):
 
-				for key in value.keys():
-					if key.find('stores') == 0:
-						if len(value.get(key)) != 0:
-							if type(value.get(key)) is not list:
-								if len(value.get(key)) != 0:
-									value_key = value.get(key).split(',')
+    nw_liste_insert = []
+    for x, nbr in enumerate(list_base):
+        if x not in list_item_del:
+            nw_liste_insert.append(nbr)
+    return nw_liste_insert
 
-							for store_select in stores:
-								if store_select in value.get(key):
-									if len(store_select) >= 3:
-										liste_stores.append(stores.index(store_select))
 
-							if len(liste_stores) == 0:
-								for value_stores in value.get(key):
-									if len(value_stores) >= 3:
-										stores.append(value_stores)
-										liste_stores.append(stores.index(value_stores))
-				list_nodbl = []
-				for data_stores in liste_stores:
-					data_stores = data_stores + 1
-					if not data_stores in list_nodbl:
-						list_nodbl.append(data_stores)
-				dictionnary_produit["stores"] = list_nodbl
-				dict_insert = copy.deepcopy(dictionnary_produit)
-				liste_dict_produit.append(dict_insert)
-		return liste_dict_produit
+def dbl_fusionCat(list_del, list_keep):
 
-	def dbl_listing(self,liste_produit):
-		nw_liste_produit = []
-		insert_value = True
-		for x, nbr in enumerate(liste_produit):
-			var_nom = nbr.get('product_name')
-			if len(nw_liste_produit) == 0:
-				nw_liste_produit.append(nbr)
-			else:
-				for value in nw_liste_produit:
-					if var_nom == value.get('product_name'):
-						insert_value == False
+    for items in list_keep:
+        for items_del in list_del:
+            if items.get('nom') == items_del.get('nom'):
+                items['cat'] = items.get('cat') + items_del.get('cat')
+    return list_keep
 
-				if insert_value == True:
-					nw_liste_produit.append(nbr)
-				else:
-					if not set(value.get('categories')).issubset(set(nbr.get('categories'))):
-						val_manquante = [value for value in liste_cat_search if value not in liste_cat_find]
-						nbr['categories']=nbr.get('categories') + val_manquante
-
-		return nw_liste_produit
-
-	def crea_bdd(self):
-		host = input("Indiquer l'adresse de la base de donnée (par défaut 'Localhost') : ")
-		users = input("Indiquer l'utilisateur (par défaut 'root') : ")
-		pwd = input("Mot de passe de votre base : ")
-		dataB = input("Nom de votre base de donnée ? (par défaut 'oc_projet5)")
-
-		bdd_ini = bdd_mysql(host,users,pwd,dataB,self.liste_nutriments)
-		msg_bdd = bdd_ini.msg_crea_bdd()
-
-		print(msg_bdd)
 
 def crea_list_field(value):
-	liste_field = ["nutriments","url"] #"product_name_fr",
-	liste_field_test = ["grade","product_name"]
-	for field in liste_field_test:
-		for key in value.keys():
-			if field in key and value.get(key):
-				liste_field.append(key)
-				break
-	return liste_field
+    liste_field = ["nutriments", "url"]
+    liste_field_test = ["grade", "product_name"]
+    for field in liste_field_test:
+        for key in value.keys():
+            if field in key and value.get(key):
+                liste_field.append(key)
+                break
+    return liste_field
 
-def crea_newliste (req,field):
-	liste_produit = []
-	for value in req['products']:
-		for key, value_products in value.items():
-			if key.find(field) == 0:
-				for categories in value_products:
-					categories = categories.strip()
-					if categories not in liste_produit and len(categories)>=3:
-						liste_produit.append(categories)
 
-	return liste_produit
+def crea_newliste(req, field):
 
+    liste_produit = []
+    for value in req['products']:
+        for key, value_products in value.items():
+            if key.find(field) == 0:
+                for categories in value_products:
+                    categories = categories.strip()
+                    if categories not in liste_produit \
+                       and len(categories) >= 3:
+                        liste_produit.append(categories)
+    return liste_produit
