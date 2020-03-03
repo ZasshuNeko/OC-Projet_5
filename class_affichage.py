@@ -1,6 +1,7 @@
 # -*-coding:Utf-8 -*
 
 """Ce Fichier contiendra la classe gérant l'affichage
+This File will contain the class managing the display
 """
 
 import sys
@@ -15,9 +16,9 @@ import platform
 import codecs
 
 
-class affichage:
+class display:
     def __init__(self):
-        choix = 0
+        #choix = 0
         clean()
         self.config = configparser.ConfigParser()
         self.config.read('config.ini', 'utf8')
@@ -30,7 +31,9 @@ class affichage:
         self.list_hello = self.config.get(
                                           'INTERACTION',
                                           'lancement').split(',')
-    # Affiche le message d'introduction du programme
+
+    """ Affiche le message d'introduction du programme
+    Displays the program introduction message"""
 
     def aff_intro(self):
 
@@ -42,7 +45,9 @@ class affichage:
         ask_util = error_check(self.list_ask_intro)
         clean()
         return ask_util
-    # Affiche et enregistre les configurations de la base de donnée
+
+    """ Affiche et enregistre les configurations de la base de donnée
+    Displays and saves database configurations"""
 
     def aff_configbdd(self):
 
@@ -57,7 +62,8 @@ class affichage:
         self.config.write(codecs.open('config.ini', 'w', 'utf8'))
         print("Configuration réussie")
 
-    # Affiche un choix utilisateurs
+    """ Affiche un choix utilisateurs
+    Displays a user choice"""
 
     def aff_msg(self, list_categories, titre):
         ask_all = []
@@ -71,19 +77,22 @@ class affichage:
         clean()
         return ask_all
 
-    # Affiche le message de fin
+    """ Affiche le message de fin
+    Displays the end message"""
 
     def aff_end(self):
         print("Merci d'avoir utiliser mon programme, \
         à bientôt sur un prochain projet OpenClassrooms")
 
-    # Affiche un message d'erreur
+    """ Affiche un message d'erreur
+    Displays an error message"""
 
     def aff_warning(self, warning):
         clean()
         print(warning)
 
-    # Permet de vérifier qu'un choix fait par l'utilisateur est bon
+    """ Permet de vérifier qu'un choix fait par l'utilisateur est bon
+    Checks that a choice made by the user is correct"""
 
 
 def error_check(liste):
@@ -100,7 +109,8 @@ def error_check(liste):
             bien ce n'est pas un choix possible)")
     return ask_util
 
-# Permet de nétoyer l'interface
+""" Permet de nétoyer l'interface
+Clean the interface"""
 
 
 def clean():

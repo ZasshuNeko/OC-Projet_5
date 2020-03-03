@@ -1,6 +1,7 @@
 # -*-coding:Utf-8 -*
 
 """Ce Fichier contiendra la classe gérant les requêtes de l'API
+This File will contain the class handling API requests
 """
 
 import sys
@@ -23,15 +24,19 @@ class request:
         self.config.read('config.ini', 'utf8')
         self.adress_api = "https://fr.openfoodfacts.org/cgi/search.pl?"
         self.final_api = "&action=process&json=1"
-        self.liste_nutriments = self.config.get(
+        self.list_nutrients = self.config.get(
                                                 'CONFIG',
                                                 'nutriments').split(',')
 
     """ Ces modules permettent de créer une réponse jsons des
     différentes demandes produits par l'API
+    These modules allow you to create a response to
+     different requests produced by the API
 
     Permet de ramener les produits répondant aux catégories
-    indiqués en paramètre "select_choice" """
+    indiqués en paramètre "select_choice"
+    Allows to bring back the products answering the categories
+     indicated in parameter "select_choice"""
 
     def req_produit(self, select_choice):
         tag = "search_terms="
@@ -42,7 +47,8 @@ class request:
         result = json.loads(r.content)
         return result
 
-    # Permet de ramener les différents vendeurs de Open Food Facts
+    """ Permet de ramener les différents vendeurs de Open Food Facts
+    Lets bring back the different sellers of Open Food Facts"""
 
     def req_store(self):
 
@@ -50,11 +56,13 @@ class request:
         req_api = self.adress_api + tag + self.final_api
         r = requests.get(req_api)
         result = json.loads(r.content)
-        list_store = crea_newliste(result, 'stores')
+        list_store = crea_newlist(result, 'stores')
         return list_store
 
-    """ Ce module créé le dictionnaire ou sera contenu
-    les produits de chaque catégories"""
+    """ Cette fonction créé le dictionnaire ou sera contenu
+    les produits de chaque catégories
+    This function creates the dictionary or will be contained
+     the products of each category"""
 
     def crea_dictionnary(self, req, cat_import, x, stores):
         dictionnary_produit = {}
@@ -72,7 +80,7 @@ class request:
                     if empty_var == 'nutriments':
                         for value_nutriment in value['nutriments']:
                             for nutriments_empty in list(
-                                                         self.liste_nutriments
+                                                         self.list_nutrients
                                                          ):
                                 insert_key = nutriments_empty.replace('-', '_')
                                 if insert_key.find('nutrition_score_fr') != -1:
@@ -117,7 +125,9 @@ class request:
         return liste_dict_produit
 
     """ Permet de retirer les doublons des
-    produits et de fusionner les catégories"""
+    produits et de fusionner les catégories
+    Remove duplicates from products and merge
+    categories"""
 
     def dbl_listing(self, liste_produit):
         dict_item_keep = {}
@@ -177,7 +187,7 @@ def crea_list_field(value):
     return liste_field
 
 
-def crea_newliste(req, field):
+def crea_newlist(req, field):
 
     liste_produit = []
     for value in req['products']:
