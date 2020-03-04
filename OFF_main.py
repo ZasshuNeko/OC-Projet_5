@@ -75,13 +75,13 @@ def main():
             aff_listeproduit = req_product.dbl_listing(liste_dict_product)
             bdd_ini.full_database(aff_listeproduit, list_import_category,
                                   liste_stores)
-        """ Si 1 : Lance la recherche de substitut
-        If 1: Start the search for a substitute"""
+        # Si 1 : Lance la recherche de substitut
+        # If 1: Start the search for a substitute
         elif answer_user == 1:
             req_dbt = bdd_ini.req_sql(screen_init, end_prog)
             end_prog = req_dbt
-        """Si 2 : Recherche les substituts déjà trouvé
-        If 2: Search for substitutes already found"""
+        # Si 2 : Recherche les substituts déjà trouvé
+        # If 2: Search for substitutes already found
         elif answer_user == 2:
             req_take_substitut = bdd_ini.sql_take_substitut(
                                                             screen_init,

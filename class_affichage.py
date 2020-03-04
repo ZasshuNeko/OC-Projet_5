@@ -18,7 +18,6 @@ import codecs
 
 class display:
     def __init__(self):
-        #choix = 0
         clean()
         self.config = configparser.ConfigParser()
         self.config.read('config.ini', 'utf8')
