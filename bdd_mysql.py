@@ -42,90 +42,47 @@ class bdd_mysql:
     def req_sql(self, aff_class, end_prog):
         titre = self.config.get('INTERACTION', 'categorie')
         init_affichage = aff_class
-        list_seq = {}
         cursor = self.msg_conn[0].cursor(buffered=True)
-        """ Requête ramenant les catégories
-        Request bringing back the categories
-        """
+        # Requête ramenant les catégories
+        # Request bringing back the categories
         seq_sql = "SELECT * FROM categories"
-        cursor.execute(seq_sql)
-        answer_bdd = cursor.fetchall()
-        for key, answer in enumerate(answer_bdd):
-            list_seq[key] = answer[1]
-        ask_nbr = init_affichage.aff_msg(list_seq, titre)
+        list_seq = dict_select(seq_sql,cursor)
+        ask_nbr = init_affichage.aff_msg(list_seq[0], titre)
         ask_nbr[0] = ask_nbr[0] + 1
-        """Requête pour les produits liés à la catégorie
-        sélectionné par l'utilisateur
-        Request for products linked to the category
-         selected by user"""
+        # Requête pour les produits liés à la catégorie
+        # sélectionné par l'utilisateur
+        # Request for products linked to the category
+        # selected by user
         seq_sql = "SELECT DISTINCT  " + \
                   self.config.get('CONFIG', 'sql_produit') + \
                   " FROM produits, Tbl_jointure_categories_produits WHERE \
                   produits.id = Tbl_jointure_categories_produits.produits_id \
                   AND Tbl_jointure_categories_produits.categories_id = " + \
                   str(ask_nbr[0])+";"
-        cursor.execute(seq_sql)
-        answer_bdd = cursor.fetchall()
-        list_seq = {}
-        for key, answer in enumerate(answer_bdd):
-            list_seq[key] = answer[1]
+        list_seq = dict_select(seq_sql,cursor)
         titre = self.config.get('INTERACTION', 'produit') + " " + ask_nbr[1]
-        ask_nbr_produit = init_affichage.aff_msg(list_seq, titre)
+        ask_nbr_produit = init_affichage.aff_msg(list_seq[0], titre)
         index_answer_bdd = ask_nbr_produit[0]
-        produit_select = answer_bdd[index_answer_bdd]
+        produit_list = list_seq[1]
+        produit_select = produit_list[index_answer_bdd]
         produit_select_nutri_code = produit_select[2]
-        result_substitut = ""
-        dict_nutriscore = {}
-        dict_nutrimentO = {}
-        dict_nutrimentT = {}
-        dict_nutrimentTh = {}
-        list_nutriment_sub = []
-        for nutri_score in answer_bdd:
-            if produit_select_nutri_code is not None:
-                if nutri_score[2] is not None:
-                    dict_nutriscore[nutri_score[0]] = nutri_score[2]
-            else:
-                if nutri_score[3] is not None:
-                    if nutri_score[3] is not None:
-                        dict_nutrimentO[nutri_score[0]] = nutri_score[3]
-        if len(dict_nutrimentO) != 0:
-            min_keys = [k for k, x in dict_nutrimentO.items()
-                        if not any(y < x for y in dict_nutrimentO.values())]
-        else:
-            min_keys = [k for k, x in dict_nutriscore.items()
-                        if not any(y < x for y in dict_nutriscore.values())]
-        random.shuffle(min_keys)
-        for nutri_score in answer_bdd:
-            if nutri_score[0] in min_keys:
-                result_substitut = copy.deepcopy(nutri_score)
-                break
-        if len(result_substitut) != 0:
-            info_substitut = self.config.get('INTERACTION',
-                                             'substitut').split(',')
-            list_seq = {}
-            for key, answer in enumerate(info_substitut):
-                list_seq[key] = answer
-            """Requête pour ramener un substitut
-            Request to bring a substitute"""
+        list_substitut = list_sub(produit_list,self.config,produit_select_nutri_code)
+        if list_substitut[0] != 0:
+            result_substitut = list_substitut[1]
+            # Requête pour ramener un substitut
+            # Request to bring a substitute
             seq_sql = "SELECT * FROM produits WHERE \
                        produits.id = " + str(result_substitut[0])
-            cursor.execute(seq_sql)
-            answer_substitut = cursor.fetchall()
-            for answer in answer_substitut:
-                list_answer = list(answer)
-            """ Requête permettant de trouver le vendeur du substitut
-            Query to find the seller of the substitute
-            """
+            list_answer = list_select(seq_sql,cursor)
+            # Requête permettant de trouver le vendeur du substitut
+            # Query to find the seller of the substitute
             seq_sql = "SELECT DISTINCT  vendeurs.nom FROM vendeurs, \
                        Tbl_jointure_vendeurs_produits WHERE \
                        vendeurs.id = \
                        Tbl_jointure_vendeurs_produits.vendeurs_id \
                        AND Tbl_jointure_vendeurs_produits.produits_id = " + \
                       str(result_substitut[0])+";"
-            cursor.execute(seq_sql)
-            answer_vendeur = cursor.fetchall()
-            for answer in answer_vendeur:
-                list_answer_vendeurs = list(answer)
+            list_answer_vendeurs = list_select(seq_sql,cursor)
             list_vendeur = ''
             for vendeur in list_answer_vendeurs:
                 list_vendeur = list_vendeur + vendeur + '\n'
@@ -139,7 +96,7 @@ class bdd_mysql:
                     "- " + list_vendeur + \
                     "\n Suivez ce lien pour plus de détail : " + \
                     list_answer[20]
-            ask_quitortry = init_affichage.aff_msg(list_seq, titre)
+            ask_quitortry = init_affichage.aff_msg(list_substitut[0], titre)
         else:
             titre = "Aucun substitut trouvé"
             info_nosubstitut = self.config.get('INTERACTION',
@@ -159,9 +116,8 @@ class bdd_mysql:
             list_insert.append(list_answer[0])
             list_insert.append(date_save)
             print(list_insert)
-            """ Requête permettant de sauvegarder le substitut
-            Request to save the substitute
-            """
+            # Requête permettant de sauvegarder le substitut
+            # Request to save the substitute
             seq_sql = "INSERT INTO substitut_save \
                       (produit_id, substitut_id, date_time) \
                       VALUES (%s, %s, %s);"
@@ -232,11 +188,11 @@ class bdd_mysql:
             sys.exit(0)
 
     def full_database(self, list_product, list_categorie, list_store):
-        """ Récupération du mysql.connector
-        Retrieving mysql.connector"""
+        # Récupération du mysql.connector
+        # Retrieving mysql.connector"""
         cursor = self.msg_conn[0].cursor(buffered=True)
-        """ Permet le remplissage de la table catégorie
-        Allows filling of the category table"""
+        # Permet le remplissage de la table catégorie
+        # Allows filling of the category table"""
         list_insert_cat = []
         for categorie in list_categorie:
             list_insert_cat = []
@@ -358,3 +314,53 @@ def script_read(nom_fichier):
     script_open.close()
     sqlcommands = sqlfile.split(";")
     return sqlcommands
+
+def dict_select(sql,cursor):
+    list_seq = {}
+    cursor.execute(sql)
+    answer_bdd = cursor.fetchall()
+    for key, answer in enumerate(answer_bdd):
+        list_seq[key] = answer[1]
+    return [list_seq,answer_bdd]
+
+def list_select(sql,cursor):
+    cursor.execute(sql)
+    answer_bdd = cursor.fetchall()
+    for answer in answer_bdd:
+        list_answer = list(answer)
+    return list_answer
+
+def list_sub(produit_list,config,nutri_code):
+    result_substitut = ""
+    dict_nutriscore = {}
+    dict_nutrimentO = {}
+    dict_nutrimentT = {}
+    dict_nutrimentTh = {}
+    list_nutriment_sub = []
+    for nutri_score in produit_list:
+        if nutri_code is not None:
+            if nutri_score[2] is not None:
+                dict_nutriscore[nutri_score[0]] = nutri_score[2]
+        else:
+            if nutri_score[3] is not None:
+                if nutri_score[3] is not None:
+                    dict_nutrimentO[nutri_score[0]] = nutri_score[3]
+    if len(dict_nutrimentO) != 0:
+        min_keys = [k for k, x in dict_nutrimentO.items()
+                    if not any(y < x for y in dict_nutrimentO.values())]
+    else:
+        min_keys = [k for k, x in dict_nutriscore.items()
+                    if not any(y < x for y in dict_nutriscore.values())]
+    random.shuffle(min_keys)
+    for nutri_score in produit_list:
+        if nutri_score[0] in min_keys:
+            result_substitut = copy.deepcopy(nutri_score)
+            break
+    if len(result_substitut) != 0:
+        info_substitut = config.get('INTERACTION',
+                                         'substitut').split(',')
+        list_seq = {}
+        for key, answer in enumerate(info_substitut):
+            list_seq[key] = answer
+    return [list_seq,result_substitut]
+

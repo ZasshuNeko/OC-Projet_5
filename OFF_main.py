@@ -15,56 +15,56 @@ from bdd_mysql import bdd_mysql
 
 
 def main():
-    """----------------------------------------------------
-    Changement configParser et lecture du fichier config
-    Change configParser and read the config file"""
+    # ----------------------------------------------------
+    # Changement configParser et lecture du fichier config
+    # Change configParser and read the config file
     config = configparser.ConfigParser()
     config.read('config.ini', 'utf8')
-    """-----------------------------------------------------
-    Chargement de la liste categorie et nutriment
-    Loading the category and nutrient list"""
+    # -----------------------------------------------------
+    # Chargement de la liste categorie et nutriment
+    # Loading the category and nutrient list
     list_import_category = config.get('CONFIG', 'categories').split(',')
     list_import_nutrients = config.get('CONFIG', 'nutriments').split(',')
     # ------------------------------------------------------
     liste_dict_product = []
     end_prog = True
-    """------------------------------------------------------
-    Initialisation de la class requête et affichage
-    Initialization of the class request and display"""
+    # ------------------------------------------------------
+    # Initialisation de la class requête et affichage
+    # Initialization of the class request and display
     req_product = request()
     screen_init = display()
-    """Test de la connexion à la base de donnée, création des tables,
-    renvois d'un message de succes ou d'erreur
-    Test of the connection to the database, creation of tables,
-     resend of a success or error message"""
+    # Test de la connexion à la base de donnée, création des tables,
+    # renvois d'un message de succes ou d'erreur
+    # Test of the connection to the database, creation of tables,
+    # resend of a success or error message
     bdd_ini = bdd_mysql(config.get('SAVE', 'host'),
                         config.get('SAVE', 'user'),
                         config.get('SAVE', 'password'),
                         config.get('SAVE', 'database_name'),
                         list_import_nutrients)
-    """ Si la connexion ne se fait pas,
-    remonter l'erreur puis fermer le programme
-    If the connection is not made,
-     report the error then close the program"""
+    # Si la connexion ne se fait pas,
+    # remonter l'erreur puis fermer le programme
+    # If the connection is not made,
+    # report the error then close the program
     if bdd_ini.msg_conn[1] is not None:
         screen_init.aff_warning(bdd_ini.msg_conn[1])
         sys.exit(0)
     while end_prog:
         answer_user = screen_init.aff_intro()
-        """ ------------------------------------------------------
-        Sélection des premier choix
-        Si 0 : Création des tables et chargement de la base de donnée
-        Choice selection
-         If 0: Creation of tables and loading of the database"""
+        # ------------------------------------------------------
+        # Sélection des premier choix
+        # Si 0 : Création des tables et chargement de la base de donnée
+        # Choice selection
+        # If 0: Creation of tables and loading of the database
         if answer_user == 0:
             bdd_ini.msg_crea_bdd(screen_init)
-            """ Créer la liste des vendeurs
-            Create the seller list"""
+            # Créer la liste des vendeurs
+            # Create the seller list
             liste_stores = req_product.req_store()
-            """ Création d'une liste de dictionnaire constitué
-            des produits à intégrer à la base
-            Creation of a list of constituted dictionary
-             products to integrate into the base"""
+            # Création d'une liste de dictionnaire constitué
+            # des produits à intégrer à la base
+            # Creation of a list of constituted dictionary
+            # products to integrate into the base
             for x, cat_import in enumerate(list_import_category):
                 req_result = req_product.req_produit(cat_import)
                 list_product = req_product.crea_dictionnary(req_result,

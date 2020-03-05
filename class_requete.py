@@ -28,15 +28,15 @@ class request:
                                                 'CONFIG',
                                                 'nutriments').split(',')
 
-    """ Ces modules permettent de créer une réponse jsons des
-    différentes demandes produits par l'API
-    These modules allow you to create a response to
-     different requests produced by the API
+    # Ces modules permettent de créer une réponse jsons des
+    # différentes demandes produits par l'API
+    # These modules allow you to create a response to
+    # different requests produced by the API
 
-    Permet de ramener les produits répondant aux catégories
-    indiqués en paramètre "select_choice"
-    Allows to bring back the products answering the categories
-     indicated in parameter "select_choice"""
+    # Permet de ramener les produits répondant aux catégories
+    # indiqués en paramètre "select_choice"
+    # Allows to bring back the products answering the categories
+    # indicated in parameter "select_choice"
 
     def req_produit(self, select_choice):
         tag = "search_terms="
@@ -47,8 +47,8 @@ class request:
         result = json.loads(r.content)
         return result
 
-    """ Permet de ramener les différents vendeurs de Open Food Facts
-    Lets bring back the different sellers of Open Food Facts"""
+    # Permet de ramener les différents vendeurs de Open Food Facts
+    # Lets bring back the different sellers of Open Food Facts
 
     def req_store(self):
 
@@ -59,10 +59,10 @@ class request:
         list_store = crea_newlist(result, 'stores')
         return list_store
 
-    """ Cette fonction créé le dictionnaire ou sera contenu
-    les produits de chaque catégories
-    This function creates the dictionary or will be contained
-     the products of each category"""
+    # Cette fonction créé le dictionnaire ou sera contenu
+    # les produits de chaque catégories
+    # This function creates the dictionary or will be contained
+    # the products of each category
 
     def crea_dictionnary(self, req, cat_import, x, stores):
         dictionnary_produit = {}
@@ -124,10 +124,10 @@ class request:
                 liste_dict_produit.append(dict_insert)
         return liste_dict_produit
 
-    """ Permet de retirer les doublons des
-    produits et de fusionner les catégories
-    Remove duplicates from products and merge
-    categories"""
+    # Permet de retirer les doublons des
+    # produits et de fusionner les catégories
+    # Remove duplicates from products and merge
+    # categories
 
     def dbl_listing(self, liste_produit):
         dict_item_keep = {}
