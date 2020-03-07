@@ -86,16 +86,16 @@ class bdd_mysql:
             list_vendeur = ''
             for vendeur in list_answer_vendeurs:
                 list_vendeur = list_vendeur + vendeur + '\n'
-            if list_answer[19] is None:
+            if list_answer[18] is None:
                 print_nutri_score = " non fournis par open food facts "
             else:
-                print_nutri_score = list_answer[19]
+                print_nutri_score = list_answer[18]
             titre = "Voici votre substitut " + \
                     list_answer[1] + "\n Sont nutri_score : " + \
                     print_nutri_score + "\n Vous pouvez l'acheter :\n" + \
                     "- " + list_vendeur + \
                     "\n Suivez ce lien pour plus de détail : " + \
-                    list_answer[20]
+                    list_answer[19]
             ask_quitortry = init_affichage.aff_msg(list_substitut[0], titre)
         else:
             titre = "Aucun substitut trouvé"

@@ -27,7 +27,6 @@ CREATE TABLE IF NOT EXISTS Produits (
 	sugars_unit CHAR(5),
 	saturated_fat_100g DECIMAL(7,2) UNSIGNED,
 	saturated_fat_unit CHAR(5),
-	nova_score TINYINT,
 	nutri_score CHAR(5),
 	lien TEXT, 
 	PRIMARY KEY(id))

@@ -5,8 +5,8 @@ OpenClassRooms - Projet 5
 I. Description
 ==============
 
-Ce programme à pour but de renseigner un substitut plus sain à un aliment choisis par l'utilisateur
-Il repose sur un jeu de donnée obtenue par l'API Open Food Facts.
+Ce programme à pour but de renseigner un substitut plus sain à un aliment choisi par l'utilisateur
+Il repose sur un jeu de données obtenues par l'API Open Food Facts.
 
 II. Installation de python 3
 ============================
@@ -23,32 +23,32 @@ III. Installation de Git et copie du programme
 > Télécharger la dernière version de git
 > Installer cette dernière puis lancer l'application "Git Bash"
 
-Copier le répertoire du programme avec la commnde : `git clone https://github.com/ZasshuNeko/OC-Projet_5.git`
+Copier le répertoire du programme avec la commande : `git clone https://github.com/ZasshuNeko/OC-Projet_5.git`
 
 IV. Installer et paramétrer Mysql
 =================================
 
 > Rendez-vous sur (http://dev.mysql.com/downloads/mysql/#downloads)
 > Puis télécharger la dernière version de Mysql pour votre OS
-> Une fois l'installation faite et votre compte administrateur créé ouvrez l'invite de commande windows
+> Une fois l'installation faite et votre compte administrateur créé, ouvrez l'invite de commande windows
 `set PATH=%PATH%;chemin_vers_mysql_bin`
 `mysql -u root -p`
 > Entrer votre mot de passe puis validez
-> Avant de lancer le programme vous devez créer votre base de donnée
+> Avant de lancer le programme vous devez créer votre base de données
 `CREATE DATABASE Nom_de_votre_base CHARACTER SET 'utf8';`
-> Vous devez ensuite paramétrer le programme pour qu'il puisse se connecter à votre base de donnée
-	* Soit vous configurez votre base de donée directement dans le programme, il vous suffit alors de l'exécuter et de vous référer à
-	l'option **Configurer la base de donnée** 
+> Vous devez ensuite paramétrer le programme pour qu'il puisse se connecter à votre base de données
+	* Soit vous configurez votre base de données directement dans le programme, il vous suffit alors de l'exécuter et de vous référer à
+	l'option **Configurer la base de données** 
 	* Soit dans le dossier de l'application, ouvrez le fichier "config.ini", dans la partie "SAVE" entrer les informations comme cela :
-	`host = **l'adresse de votre base de donnée**`
-	`user = **Utilisateur de votre base de donnée**`
+	`host = **l'adresse de votre base de données**`
+	`user = **Utilisateur de votre base de données**`
 	`password = **mot de passe du compte utilisateur**`
-	`database_name = **nom de la base de donnée**`
+	`database_name = **nom de la base de données**`
 
 V. Executer le programme
 =========================
 
-Une fois le répertoire copié à l'emplacement choisis ouvrez l'invite de commande et placez-vous dans le répertoire
+Une fois le répertoire copié à l'emplacement choisi, ouvrez l'invite de commande et placez-vous dans le répertoire
 `cd chemin_du_repertoir`
 Puis executer le programme en tapant *OFF_main.py*
 
@@ -57,17 +57,17 @@ VI. Le programme
 
 Le premier écran vous propose **5 choix**
 
-* **Charger la base de donnée**
+* **Charger la base de données**
 
-Cette option vous permet de lancer la configuration automatique des tables et d'importer le jeu de donnée venant de *Open Food Facts*
+Cette option vous permet de lancer la configuration automatique des tables et d'importer le jeu de données venant de *Open Food Facts*
 
-* **Quel aliment souhaitez vous remplacer**
+* **Quel aliment souhaitez-vous remplacer**
 
-Cette option permet de sélectionner la catégorie puis le produit en vu d'une substitution de l'aliment et ainsi obtenir un aliment plus sain.
+Cette option permet de sélectionner la catégorie puis le produit en vue d'une substitution de l'aliment et ainsi obtenir un aliment plus sain.
 
 * **Retrouver mes aliments susbtitués**
 
-Si vous avez sauvegardé des recherche, cette option vous permet de les lister
+Si vous avez sauvegardé des recherches, cette option vous permet de les lister
 
 * **Configurer la base de donnée**
 
@@ -137,11 +137,11 @@ VI. The program
 
 The first screen offers you ** 5 choices **
 
-* **Charger la base de donnée**
+* **Charger la base de données**
 
 This option allows you to launch the automatic configuration of the tables and to import the data set coming from * Open Food Facts *
 
-* **Quel aliment souhaitez vous remplacer**
+* **Quel aliment souhaitez-vous remplacer**
 
 This option allows you to select the category then the product in view of a substitution of the food and thus obtain a healthier food.
 
@@ -149,7 +149,7 @@ This option allows you to select the category then the product in view of a subs
 
 If you have saved searches, this option allows you to list them
 
-* **Configurer la base de donnée**
+* **Configurer la base de données**
 
 This option allows you to enter the connection data for your database, but you can do so directly in the configuration file
 Config.ini * *
