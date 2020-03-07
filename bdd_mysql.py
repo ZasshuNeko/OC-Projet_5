@@ -278,6 +278,7 @@ def conn_test(adresse, utilisateur, password, name_databases):
                                        user=utilisateur, password=password,
                                        database=name_databases)
     except mysql.connector.Error as err:
+        conn = "ERROR"
         if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
             print_error = "Vérifier le mot de passe ou l'utilisateur"
         elif err.errno == errorcode.ER_BAD_DB_ERROR:
