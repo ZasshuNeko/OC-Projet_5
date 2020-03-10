@@ -4,26 +4,39 @@
 This File will contain the management of the database
 """
 
-import sys
-import os
-import json
 import configparser
-import mysql.connector
-from mysql.connector import errorcode
-from mysql.connector.errors import Error
-from class_affichage import *
-import requests
 import copy
 import datetime
+import json
+import os
 import random
+import sys
+
+import mysql.connector
+import requests
+from mysql.connector import errorcode
+from mysql.connector.errors import Error
+
+from affichage import Display
 
 
-class bdd_mysql:
+class Bddmysql:
+    """
+    Cette classe intégre la gestions de la base de donnée
+    La création et les requêtes sql
+    """
     # Initialisation de l'objet connexion avec vérification sur la fonction conn_test
     # Initialization of the connection object with verification on the conn_test function
+
     def __init__(self, adresse,
                  utilisateur, password,
                  name_databases, list_nutriment):
+        """
+        Le constructeur va créer l'objet connexion en testant
+        les différentes informations fournis par l'utilisateur
+        dans le fichier config.ini
+        utilisation de la fonction conn_test
+        """
 
         self.config = configparser.ConfigParser()
         self.config.read('config.ini', 'utf8')
@@ -40,13 +53,21 @@ class bdd_mysql:
 # local data and creates choice lists which it sends to the display class
 
     def req_sql(self, aff_class, end_prog):
+        """
+        Cette fonction permet d'intéragir avec l'utilisateur et de suivre le déroulement du programme
+        Première étape utilisation des catégories et choix vers l'utilisateur
+        Seconde étape Sélection du produit dans la catégorie sélectionné par l'utilisateur
+        Dernière étape sélection du substitut et affichage vers l'utilisateur
+        Si l'utilisateur décide d'enregistrer, une étape supplémentaire permet d'enregistrer 
+        le substitut dans la base de donnée
+        """
         titre = self.config.get('INTERACTION', 'categorie')
         init_affichage = aff_class
         cursor = self.msg_conn[0].cursor(buffered=True)
         # Requête ramenant les catégories
         # Request bringing back the categories
         seq_sql = "SELECT * FROM categories"
-        list_seq = dict_select(seq_sql,cursor)
+        list_seq = dict_select(seq_sql, cursor)
         ask_nbr = init_affichage.aff_msg(list_seq[0], titre)
         ask_nbr[0] = ask_nbr[0] + 1
         # Requête pour les produits liés à la catégorie
@@ -59,21 +80,22 @@ class bdd_mysql:
                   produits.id = Tbl_jointure_categories_produits.produits_id \
                   AND Tbl_jointure_categories_produits.categories_id = " + \
                   str(ask_nbr[0])+";"
-        list_seq = dict_select(seq_sql,cursor)
+        list_seq = dict_select(seq_sql, cursor)
         titre = self.config.get('INTERACTION', 'produit') + " " + ask_nbr[1]
         ask_nbr_produit = init_affichage.aff_msg(list_seq[0], titre)
         index_answer_bdd = ask_nbr_produit[0]
         produit_list = list_seq[1]
         produit_select = produit_list[index_answer_bdd]
         produit_select_nutri_code = produit_select[2]
-        list_substitut = list_sub(produit_list,self.config,produit_select_nutri_code)
+        list_substitut = list_sub(
+            produit_list, self.config, produit_select_nutri_code)
         if list_substitut[0] != 0:
             result_substitut = list_substitut[1]
             # Requête pour ramener un substitut
             # Request to bring a substitute
             seq_sql = "SELECT * FROM produits WHERE \
                        produits.id = " + str(result_substitut[0])
-            list_answer = list_select(seq_sql,cursor)
+            list_answer = list_select(seq_sql, cursor)
             # Requête permettant de trouver le vendeur du substitut
             # Query to find the seller of the substitute
             seq_sql = "SELECT DISTINCT  vendeurs.nom FROM vendeurs, \
@@ -82,7 +104,7 @@ class bdd_mysql:
                        Tbl_jointure_vendeurs_produits.vendeurs_id \
                        AND Tbl_jointure_vendeurs_produits.produits_id = " + \
                       str(result_substitut[0])+";"
-            list_answer_vendeurs = list_select(seq_sql,cursor)
+            list_answer_vendeurs = list_select(seq_sql, cursor)
             list_vendeur = ''
             for vendeur in list_answer_vendeurs:
                 list_vendeur = list_vendeur + vendeur + '\n'
@@ -131,6 +153,9 @@ class bdd_mysql:
 # Request bringing back the searches carried out
 
     def sql_take_substitut(self, aff_class, end_prog):
+        """
+        Cette fonction appelle les substitut sauvegardé pour les afficher à l'utilisateur
+        """
         list_produit = []
         list_substit = []
         list_log = []
@@ -146,8 +171,8 @@ class bdd_mysql:
         answer_bdd = list(answer_bdd)
         for answer in answer_bdd:
             insert_list_produit = answer[0].strftime("%d/%m/%Y %H:%M") + \
-                                  " Produit sélectionné : " + answer[1] + \
-                                  " nutri_score : " + answer[2]
+                " Produit sélectionné : " + answer[1] + \
+                " nutri_score : " + answer[2]
             list_produit.append(insert_list_produit)
         # Requête ramenant les informations des produits substitués
         # Request bringing back the information of the substituted products
@@ -160,7 +185,7 @@ class bdd_mysql:
         answer_bdd = list(answer_bdd)
         for answer in answer_bdd:
             insert_list_substitut = " Substitut trouvé : " + \
-                                      answer[0] + " nutri_score : " + answer[1]
+                answer[0] + " nutri_score : " + answer[1]
             list_substit.append(insert_list_substitut)
         titre = "Vos recherches"
         for key, items in enumerate(list_produit):
@@ -188,6 +213,14 @@ class bdd_mysql:
             sys.exit(0)
 
     def full_database(self, list_product, list_categorie, list_store):
+        """
+        Cette fonction intégre le jeu de donnée venant de l'API Open Food Facts
+        dans la base de donnée local
+        Insertion des catégories dans la table du même nom
+        Insertion des vendeurs
+        Puis des produits
+        L'insertion des liens dans les tables de jointure se fait au moment de l'insertion des produits
+        """
         # Récupération du mysql.connector
         # Retrieving mysql.connector"""
         cursor = self.msg_conn[0].cursor(buffered=True)
@@ -271,6 +304,10 @@ class bdd_mysql:
 
 
 def conn_test(adresse, utilisateur, password, name_databases):
+    """
+    Cette fonction test la connexion avec la base de donnée et fait remonter
+    les erreurs
+    """
 
     print_error = None
     try:
@@ -309,6 +346,7 @@ def crea_bdd(conn, liste_nutriments):
 # Lecture du script pour obtenir les commandes sql
 # Reading the script to get sql commands
 
+
 def script_read(nom_fichier):
     script_open = open(nom_fichier, 'r')
     sqlfile = script_open.read()
@@ -316,22 +354,28 @@ def script_read(nom_fichier):
     sqlcommands = sqlfile.split(";")
     return sqlcommands
 
-def dict_select(sql,cursor):
+
+def dict_select(sql, cursor):
     list_seq = {}
     cursor.execute(sql)
     answer_bdd = cursor.fetchall()
     for key, answer in enumerate(answer_bdd):
         list_seq[key] = answer[1]
-    return [list_seq,answer_bdd]
+    return [list_seq, answer_bdd]
 
-def list_select(sql,cursor):
+
+def list_select(sql, cursor):
     cursor.execute(sql)
     answer_bdd = cursor.fetchall()
     for answer in answer_bdd:
         list_answer = list(answer)
     return list_answer
 
-def list_sub(produit_list,config,nutri_code):
+
+def list_sub(produit_list, config, nutri_code):
+    """
+    Cette fonction permet de choisir le meilleur substitut pour l'utilisateur
+    """
     result_substitut = ""
     dict_nutriscore = {}
     dict_nutrimentO = {}
@@ -359,9 +403,8 @@ def list_sub(produit_list,config,nutri_code):
             break
     if len(result_substitut) != 0:
         info_substitut = config.get('INTERACTION',
-                                         'substitut').split(',')
+                                    'substitut').split(',')
         list_seq = {}
         for key, answer in enumerate(info_substitut):
             list_seq[key] = answer
-    return [list_seq,result_substitut]
-
+    return [list_seq, result_substitut]

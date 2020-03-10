@@ -4,32 +4,43 @@
 This File will contain the class managing the display
 """
 
-import sys
-import os
-import json
-import requests
-import copy
-from class_requete import *
-from bdd_mysql import bdd_mysql
-import configparser
-import platform
 import codecs
+import configparser
+import copy
+import json
+import os
+import platform
+import sys
+
+import requests
+
+#from bddmysql import Bddmysql
+from requete import *
 
 
-class display:
+class Display:
+    """
+    La classe Display permet de gérer l'objet écran
+    Ce dernier est appelé à chaque choix de l'utilisateur
+    """
+
     def __init__(self):
+        """
+        Le constructeur init, permet d'intégrer les paramétrages du fichier config.ini
+        dans les variables de l'objet pour une utilisation ultèrieur
+        """
         clean()
         self.config = configparser.ConfigParser()
         self.config.read('config.ini', 'utf8')
         self.list_import_categorie = self.config.get(
-                                                     'CONFIG',
-                                                     'categories').split(',')
+            'CONFIG',
+            'categories').split(',')
         self.list_ask_intro = self.config.get(
-                                              'INTERACTION',
-                                              'choix_begin').split(',')
+            'INTERACTION',
+            'choix_begin').split(',')
         self.list_hello = self.config.get(
-                                          'INTERACTION',
-                                          'lancement').split(',')
+            'INTERACTION',
+            'lancement').split(',')
 
     # Affiche le message d'introduction du programme
     # Displays the program introduction message
@@ -52,8 +63,8 @@ class display:
 
         list_aff = self.config.get('INTERACTION', 'config_bdd_title')
         list_config_bdd = self.config.get(
-                                          'INTERACTION',
-                                          'list_config_conn').split(',')
+            'INTERACTION',
+            'list_config_conn').split(',')
         print(list_aff)
         for text_config in list_config_bdd:
             param_config = input('Indiquer ' + text_config + ' : ')
@@ -80,6 +91,9 @@ class display:
     # Displays the end message
 
     def aff_end(self):
+        """
+        Affiche le message de fin du programme
+        """
         print("Merci d'avoir utiliser mon programme, \
         à bientôt sur un prochain projet OpenClassrooms")
 
@@ -87,6 +101,10 @@ class display:
     # Displays an error message
 
     def aff_warning(self, warning):
+        """
+        Est utilisé pour faire remonter à l'utilisateur
+        les messages d'erreurs
+        """
         clean()
         print(warning)
 
@@ -95,6 +113,10 @@ class display:
 
 
 def error_check(liste):
+    """
+    Permet de vérifier que la réponse de l'utilisateur
+    ne provoquera pas d'erreur pour la suite du programme
+    """
 
     while True:
         try:
@@ -113,6 +135,9 @@ def error_check(liste):
 
 
 def clean():
+    """
+    Permet de nétoyer la console
+    """
     if platform.system() == "Windows":
         os.system("cls")
     elif platform.system() == "Linux":

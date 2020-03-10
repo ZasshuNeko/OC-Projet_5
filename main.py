@@ -4,17 +4,23 @@
 This File will contain the file to execute to launch the program
 """
 
-import sys
-import os
-import json
-import requests
-from class_requete import *
-from class_affichage import *
 import configparser
-from bdd_mysql import bdd_mysql
+import json
+import os
+import sys
+
+import requests
+
+from bddmysql import Bddmysql
+from affichage import Display
+from requete import Request
 
 
-def main():
+def Main():
+    """
+    Permet d'initier le projet et de pouvoir utiliser le 
+    programme.
+    """
     # ----------------------------------------------------
     # Changement configParser et lecture du fichier config
     # Change configParser and read the config file
@@ -31,17 +37,17 @@ def main():
     # ------------------------------------------------------
     # Initialisation de la class requête et affichage
     # Initialization of the class request and display
-    req_product = request()
-    screen_init = display()
+    req_product = Request()
+    screen_init = Display()
     # Test de la connexion à la base de donnée, création des tables,
     # renvois d'un message de succes ou d'erreur
     # Test of the connection to the database, creation of tables,
     # resend of a success or error message
-    bdd_ini = bdd_mysql(config.get('SAVE', 'host'),
-                        config.get('SAVE', 'user'),
-                        config.get('SAVE', 'password'),
-                        config.get('SAVE', 'database_name'),
-                        list_import_nutrients)
+    bdd_ini = Bddmysql(config.get('SAVE', 'host'),
+                       config.get('SAVE', 'user'),
+                       config.get('SAVE', 'password'),
+                       config.get('SAVE', 'database_name'),
+                       list_import_nutrients)
     # Si la connexion ne se fait pas,
     # remonter l'erreur puis fermer le programme
     # If the connection is not made,
@@ -68,8 +74,8 @@ def main():
             for x, cat_import in enumerate(list_import_category):
                 req_result = req_product.req_produit(cat_import)
                 list_product = req_product.crea_dictionnary(req_result,
-                                                             cat_import, x,
-                                                             liste_stores)
+                                                            cat_import, x,
+                                                            liste_stores)
                 liste_dict_product = liste_dict_product + list_product
             # Retrait des doublons potentiel / Potential duplicate removal
             aff_listeproduit = req_product.dbl_listing(liste_dict_product)
@@ -84,8 +90,8 @@ def main():
         # If 2: Search for substitutes already found
         elif answer_user == 2:
             req_take_substitut = bdd_ini.sql_take_substitut(
-                                                            screen_init,
-                                                            end_prog)
+                screen_init,
+                end_prog)
         # Si 3 : Permet de configurer la BDD / If 3: Configure the BDD
         elif answer_user == 3:
             write_config = screen_init.aff_configbdd()
@@ -95,5 +101,6 @@ def main():
 
     screen_init.aff_end()
 
+
 if __name__ == '__main__':
-    main()
+    Main()

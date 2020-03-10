@@ -4,29 +4,37 @@
 This File will contain the class handling API requests
 """
 
-import sys
-import os
-import json
-import copy
-import re
-import pandas as pd
-import mysql.connector
 import configparser
+import copy
+import json
+import os
+import re
+import sys
+
+import mysql.connector
+import pandas as pd
+import requests
 from mysql.connector import errorcode
 from mysql.connector.errors import Error
-import requests
 
 
-class request:
+class Request:
+    """
+    Cette classe gère la partie requête vers l'API Open Food Facts
+    """
 
     def __init__(self):
+        """
+        Le constructeur permet de générer les variables
+        qui seront utiliser par l'API
+        """
         self.config = configparser.ConfigParser()
         self.config.read('config.ini', 'utf8')
         self.adress_api = "https://fr.openfoodfacts.org/cgi/search.pl?"
         self.final_api = "&action=process&json=1"
         self.list_nutrients = self.config.get(
-                                                'CONFIG',
-                                                'nutriments').split(',')
+            'CONFIG',
+            'nutriments').split(',')
 
     # Ces modules permettent de créer une réponse jsons des
     # différentes demandes produits par l'API
@@ -65,6 +73,12 @@ class request:
     # the products of each category
 
     def crea_dictionnary(self, req, cat_import, x, stores):
+        """
+        Cette fonction crée le dictionnaire.
+        En reformatant les réponses de l'API en un dictionnaire
+        limité par les données utiles au bon fonctionnement du
+        programmre
+        """
         dictionnary_produit = {}
         dict_produit = {}
         liste_dict_produit = []
@@ -80,12 +94,13 @@ class request:
                     if empty_var == 'nutriments':
                         for value_nutriment in value['nutriments']:
                             for nutriments_empty in list(
-                                                         self.list_nutrients
-                                                         ):
+                                self.list_nutrients
+                            ):
                                 insert_key = nutriments_empty.replace('-', '_')
                                 if insert_key.find('nutrition_score_fr') != -1:
                                     insert_key = 'nutri_score'
-                                dictionnary_produit[insert_key] = value['nutriments'].get(nutriments_empty)
+                                dictionnary_produit[insert_key] = value['nutriments'].get(
+                                    nutriments_empty)
                     elif empty_var.find('product') == 0:
                         empty_var = 'product_name'
                         key_var = 'nom'
@@ -130,6 +145,10 @@ class request:
     # categories
 
     def dbl_listing(self, liste_produit):
+        """
+        Cette fonction permet de retirer les doublons avant
+        d'injecter les produits dans la base de donnée local
+        """
         dict_item_keep = {}
         dict_item_del = {}
         list_item_keep = []
